@@ -1,0 +1,30 @@
+import heapq
+
+goal = ((1,2,3),(4,5,6),(7,8,0))
+dirs = [(-1,0),(1,0),(0,-1),(0,1)]
+
+def man(p):
+    return sum(abs((v-1)//3 - i) + abs((v-1)%3 - j)
+               for i in range(3) for j in range(3) if (v := p[i][j]))
+
+def nbrs(p):
+    x,y = [(i,j) for i in range(3) for j in range(3) if p[i][j]==0][0]
+    for dx,dy in dirs:
+        nx,ny = x+dx,y+dy
+        if 0<=nx<3 and 0<=ny<3:
+            q = [list(r) for r in p]
+            q[x][y],q[nx][ny]=q[nx][ny],q[x][y]
+            yield tuple(map(tuple,q))
+
+def solve(s):
+    q = [(man(s), 0, s, [])]; seen = set()
+    while q:
+        _, c, p, path = heapq.heappop(q)
+        if p in seen: continue
+        if p == goal: return path + [p]
+        seen.add(p)
+        for n in nbrs(p):
+            heapq.heappush(q, (man(n)+c+1, c+1, n, path+[p]))
+
+start = ((1,2,3),(4,0,6),(7,5,8))
+for step in solve(start): print(step)
